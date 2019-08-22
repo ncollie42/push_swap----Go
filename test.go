@@ -5,7 +5,7 @@ import  (
 	"fmt"
 	"strconv"
 	"bytes"
-	"strings"
+	// "strings"
 	"bufio"
 )
 
@@ -52,14 +52,27 @@ func (s *Stack) rotate() {
 }
 
 func (s *Stack) push(node *node) {
-	if (s.top == nil) {
-		s.top = node
-		s.bot = node
-	} else {
-		node.below = s.top
-		s.top.above = node
-		s.top = node
+	if (node != nil) {
+		if (s.top == nil) {
+			s.top = node
+			s.bot = node
+		} else {
+			node.below = s.top
+			s.top.above = node
+			s.top = node
+		}
 	}
+}
+
+func (s *Stack) pop() *node {
+	if (s.top != nil) {
+		tmp := s.top
+		s.top = s.top.below
+		tmp.above = nil
+		tmp.below = nil
+		return tmp
+	}
+	return nil
 }
 
 func (s Stack) String() string {
@@ -70,45 +83,38 @@ func (s Stack) String() string {
 	return	buf.String()
 }
 
-type Move int
 
-const (
-	sa Move = iota
-	sb
-	ss
-	pa
-	pb
-	ra
-	rb
-	rr
-	rra
-	rrb
-	rrr
-)
-
-
-
-func scanner(stackA Stack) []Move {
-
-	// test := map[string]string { "sa": "hahahaha", "sb": "CoooooooooOÖ"}
-
-
-
-	commands := []Move{}
+func scanner(stackA Stack) []string {
+	commands := []string{}
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
-		txt := scanner.Text()
-		if strings.Compare(txt, "sa") == 0 {
-			stackA.swap()
-		} else if strings.Compare(txt, "ra") == 0 {
-			stackA.rotate()
-		}
-		fmt.Println(stackA)
-		fmt.Println("stackA")
-		// fmt.Println(test[txt])
+		input := scanner.Text()
+		
+		//Add caseswitch to check for input as it's being inputed
+		commands = append(commands, input)	
 	}
 	return commands
   }
+
+func	sa(A, B *Stack) {
+	A.swap()
+}
+
+
+func visualizer(commands []string, A, B *Stack) {
+	function := map[string]func (A, B *Stack) { "sa" : sa}
+	for _, key := range commands {
+		if fun, ok := function[key]; ok {
+			fun(A, B)
+			fmt.Println(A)
+		} else {
+			//quit here?
+			fmt.Println("that's not a function I can use") // ?? I dont need to check because alll my indexs are already okay and i quit early before
+		}
+		//wait someamount of time to see based on size of input?
+		// update(stackA, stackB)
+	}
+}
 
 func main() {
 	argv := os.Args[1:]
@@ -122,7 +128,8 @@ func main() {
 		}
 		stackA.addNew(num)
 	}
-	commands := scanner(stackA) 
+	commands := scanner(stackA)
+	visualizer(commands, &stackA, &stackB)
 	fmt.Println(commands)
 	// if -V pass comands to visualizer
 	fmt.Println(stackA)
