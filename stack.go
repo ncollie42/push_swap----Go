@@ -6,7 +6,7 @@ import (
 )
 
 type node struct {
-	num int
+	num   int
 	above *node
 	below *node
 }
@@ -15,7 +15,6 @@ type Stack struct {
 	top *node
 	bot *node
 }
-
 
 func (s *Stack) addNew(num int) {
 	tmp := &node{num, nil, nil}
@@ -36,7 +35,7 @@ func (s *Stack) swap() {
 		s.top = s.top.above
 	}
 }
-func (s *Stack) rotate() {
+func (s *Stack) rotateUp() {
 	if s.top != nil && s.top.below != nil {
 		var tmp *node
 		tmp = s.top
@@ -48,9 +47,22 @@ func (s *Stack) rotate() {
 	}
 }
 
+func (s *Stack) rotateDown() {
+	if s.top != nil && s.top.below != nil {
+		var tmp *node
+		tmp = s.bot
+		s.bot = s.bot.above
+		s.bot.below = nil
+		s.top.above = tmp
+		tmp.below = s.top
+		s.top = tmp
+		s.top.above = nil
+	}
+}
+
 func (s *Stack) push(node *node) {
-	if (node != nil) {
-		if (s.top == nil) {
+	if node != nil {
+		if s.top == nil {
 			s.top = node
 			s.bot = node
 		} else {
@@ -62,7 +74,7 @@ func (s *Stack) push(node *node) {
 }
 
 func (s *Stack) pop() *node {
-	if (s.top != nil) {
+	if s.top != nil {
 		tmp := s.top
 		s.top = s.top.below
 		tmp.above = nil
@@ -74,8 +86,8 @@ func (s *Stack) pop() *node {
 
 func (s Stack) String() string {
 	buf := bytes.Buffer{}
-	for snode := s.top ;snode != nil; snode = snode.below {
-		buf.WriteString(fmt.Sprintf("%d - ", snode.num))		
+	for snode := s.top; snode != nil; snode = snode.below {
+		buf.WriteString(fmt.Sprintf("%d - ", snode.num))
 	}
-	return	buf.String()
+	return buf.String()
 }
