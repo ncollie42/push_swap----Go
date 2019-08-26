@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 func sa(A, B *Stack) {
 	A.swap()
 }
@@ -48,5 +50,9 @@ func rrr(A, B *Stack) {
 }
 
 func check(A, B *Stack) {
-
+	if A.isSorted() && B.isEmpty() {
+		fmt.Println("OK")
+	} else {
+		fmt.Println("KO")
+	}
 }

@@ -84,6 +84,24 @@ func (s *Stack) pop() *node {
 	return nil
 }
 
+func (s *Stack) isEmpty() bool {
+	if s.top == nil {
+		return true
+	}
+	return false
+}
+
+func (s *Stack) isSorted() bool {
+	tmp := s.top
+	for tmp != nil && tmp.below != nil {
+		if tmp.num > tmp.below.num {
+			return false
+		}
+		tmp = tmp.below
+	}
+	return true
+}
+
 func (s Stack) String() string {
 	buf := bytes.Buffer{}
 	for snode := s.top; snode != nil; snode = snode.below {
