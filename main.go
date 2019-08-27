@@ -17,14 +17,6 @@ type command struct {
 	next *command
 }
 
-// func print(head *command) {
-// 	tmp := head
-// 	for tmp != nil {
-// 		fmt.Print(tmp.name, " ")
-// 		tmp = tmp.next
-// 	}
-// }
-
 func addLink(head **command, new *command) {
 	if *head == nil {
 		*head = new
@@ -37,7 +29,7 @@ func addLink(head **command, new *command) {
 	}
 }
 
-func scanner(stackA, stackB stack, functions map[string]func(A, B *Stack)) *command {
+func scanner(functions map[string]func(A, B *stack)) *command {
 	var head *command
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
@@ -61,22 +53,23 @@ func dataFromStack(stack *Stack) []float64 {
 	return data
 }
 
-func visualizer(curent *command, A, B stack, functions map[string]func(A, B stack)) {
+func stackGUI(stack *stack, color ui.Color) *widgets.Sparkline {
+	tmp := widgets.NewSparkline()
+	tmp.Data = *stack
+	tmp.LineColor = color
+	tmp.TitleStyle.Fg = ui.ColorWhite
+	return tmp
+}
+
+func visualizer(curent *command, A, B *stack, functions map[string]func(A, B *stack)) {
 
 	if err := ui.Init(); err != nil {
 		log.Fatalf("failed to init termui: %v", err)
 	}
 	defer ui.Close()
 
-	sA := widgets.NewSparkline()
-	sA.Data = A
-	sA.LineColor = ui.ColorRed
-	sA.TitleStyle.Fg = ui.ColorWhite
-
-	sB := widgets.NewSparkline()
-	sB.Data = B
-	sB.LineColor = ui.ColorBlue
-	sB.TitleStyle.Fg = ui.ColorWhite
+	sA := stackGUI(A, ui.ColorRed)
+	sB := stackGUI(B, ui.ColorBlue)
 
 	sAg := widgets.NewSparklineGroup(sA)
 	sAg.Title = "Stack A"
@@ -98,6 +91,14 @@ func visualizer(curent *command, A, B stack, functions map[string]func(A, B stac
 			switch e.ID {
 			case "q", "<C-c>":
 				return
+			case "g":
+				if curent != nil {
+					functions[curent.name](A, B)
+					curent = curent.next
+					sAg.Sparklines[0].Data = *A
+					sBg.Sparklines[0].Data = *B
+					ui.Render(grid)
+				}
 			case "<Resize>":
 				payload := e.Payload.(ui.Resize)
 				grid.SetRect(0, 0, payload.Width, payload.Height)
@@ -108,8 +109,8 @@ func visualizer(curent *command, A, B stack, functions map[string]func(A, B stac
 			if curent != nil {
 				functions[curent.name](A, B)
 				curent = curent.next
-				sAg.Sparklines[0].Data = A
-				sBg.Sparklines[0].Data = B
+				sAg.Sparklines[0].Data = *A
+				sBg.Sparklines[0].Data = *B
 				ui.Render(grid)
 			}
 		}
@@ -128,38 +129,55 @@ func dupChecker() func(int) bool {
 	}
 }
 
-func main() {
-	functions := map[string]func(A, B stack){
-		"sa": sa, "sb": sb, "ss": ss, "pa": pa, "pb": pb, "ra": ra, "rb": rb, "rr": rr, "rra": rra, "rrb": rrb, "rrr": rrr}
-
-	argv := os.Args[1:]
-	stackA := stack{}
-	stackB := stack{}
-	isDup := dupChecker()
-	size := len(argv)
-	if size == 0 {
-		os.Exit(0)
+func updateIfNeg(smallest int, stackA *stack) {
+	smallest *= -1
+	for i, x := range *stackA {
+		(*stackA)[i] = x + float64(smallest)
 	}
+
+}
+
+func getArgNums(argv []string) stack {
+	isDup := dupChecker()
+	stackA := stack{}
+	var smallest int
 	for _, str := range argv {
 		num, err := strconv.Atoi(str)
+		if num < smallest {
+			smallest = num
+		}
 		if err != nil {
 			fmt.Println("Bad input")
-			os.Exit(0)
+			os.Exit(2)
 		}
 		if isDup(num) {
 			fmt.Println(num, "is duplicated, Error")
-			os.Exit(1)
+			os.Exit(2)
 		}
 		stackA = append(stackA, float64(num))
+
 	}
-	commandList := scanner(stackA, stackB, functions) //Make a linked list
-	// print(commandList)
+	if smallest < 0 {
+		updateIfNeg(smallest, &stackA)
+	}
+	return stackA
+}
+
+func main() {
+	functions := map[string]func(A, B *stack){
+		"sa": sa, "sb": sb, "ss": ss, "pa": pa, "pb": pb, "ra": ra, "rb": rb, "rr": rr, "rra": rra, "rrb": rrb, "rrr": rrr}
+
+	if len(os.Args) == 1 {
+		os.Exit(2)
+	}
+	stackA := getArgNums(os.Args[1:])
+	stackB := stack{}
+	commandList := scanner(functions)
 	visualizer(commandList, &stackA, &stackB, functions)
-	// check(&stackA, &stackB)
+	check(&stackA, &stackB)
 }
 
 /*
 	Todo:
-		Deal with negative numbers
-			* get smallest number, and add that |x| to all the numbers
+		* check if numbers are larger than int? custom Atoi? Atof?
 */

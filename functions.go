@@ -1,58 +1,65 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
-func sa(A, B *Stack) {
+func sa(A, B *stack) {
 	A.swap()
 }
 
-func sb(A, B *Stack) {
+func sb(A, B *stack) {
 	B.swap()
 }
 
-func ss(A, B *Stack) {
+func ss(A, B *stack) {
 	A.swap()
 	B.swap()
 }
 
-func pa(A, B *Stack) {
-	A.push(B.pop())
+func pa(A, B *stack) {
+	num, _ := B.pop()
+	*A = prepend(*A, num)
 }
 
-func pb(A, B *Stack) {
-	B.push(A.pop())
+func pb(A, B *stack) {
+	num, _ := A.pop()
+	*B = prepend(*B, num)
 }
 
-func ra(A, B *Stack) {
+func ra(A, B *stack) {
 	A.rotateUp()
 }
 
-func rb(A, B *Stack) {
+func rb(A, B *stack) {
 	B.rotateUp()
 }
 
-func rr(A, B *Stack) {
+func rr(A, B *stack) {
 	A.rotateUp()
 	B.rotateUp()
 }
 
-func rra(A, B *Stack) {
+func rra(A, B *stack) {
 	A.rotateDown()
 }
 
-func rrb(A, B *Stack) {
+func rrb(A, B *stack) {
 	B.rotateDown()
 }
 
-func rrr(A, B *Stack) {
+func rrr(A, B *stack) {
 	A.rotateDown()
 	B.rotateDown()
 }
 
-func check(A, B *Stack) {
+func check(A, B *stack) {
 	if A.isSorted() && B.isEmpty() {
 		fmt.Println("OK")
+		os.Exit(0)
 	} else {
 		fmt.Println("KO")
+		os.Exit(1)
 	}
 }

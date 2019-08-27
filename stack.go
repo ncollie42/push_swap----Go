@@ -1,5 +1,6 @@
 package main
 
+// remove once C is done
 import (
 	"bytes"
 	"fmt"
