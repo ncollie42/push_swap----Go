@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	ui "github.com/gizak/termui/v3"
@@ -142,20 +143,23 @@ func getArgNums(argv []string) stack {
 	stackA := stack{}
 	var smallest int
 	for _, str := range argv {
-		num, err := strconv.Atoi(str)
-		if num < smallest {
-			smallest = num
+		split := strings.Split(str, " ")
+		fmt.Println(split)
+		for _, x := range split {
+			num, err := strconv.Atoi(x)
+			if num < smallest {
+				smallest = num
+			}
+			if err != nil {
+				fmt.Println("Bad input")
+				os.Exit(2)
+			}
+			if isDup(num) {
+				fmt.Println(num, "is duplicated, Error")
+				os.Exit(2)
+			}
+			stackA = append(stackA, float64(num))
 		}
-		if err != nil {
-			fmt.Println("Bad input")
-			os.Exit(2)
-		}
-		if isDup(num) {
-			fmt.Println(num, "is duplicated, Error")
-			os.Exit(2)
-		}
-		stackA = append(stackA, float64(num))
-
 	}
 	if smallest < 0 {
 		updateIfNeg(smallest, &stackA)
