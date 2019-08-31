@@ -7,7 +7,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	ui "github.com/gizak/termui/v3"
 	"github.com/gizak/termui/v3/widgets"
@@ -44,16 +43,6 @@ func scanner(functions map[string]func(A, B *stack)) *command {
 	return head
 }
 
-func dataFromStack(stack *Stack) []float64 {
-	data := []float64{}
-	tmp := stack.top
-	for tmp != nil {
-		data = append(data, float64(tmp.num))
-		tmp = tmp.below
-	}
-	return data
-}
-
 func stackGUI(stack *stack, color ui.Color) *widgets.Sparkline {
 	tmp := widgets.NewSparkline()
 	tmp.Data = *stack
@@ -84,7 +73,7 @@ func visualizer(curent *command, A, B *stack, functions map[string]func(A, B *st
 	grid.Set(ui.NewRow(1.0/2, ui.NewCol(1.0, sAg)), ui.NewRow(1.0/2, ui.NewCol(1.0, sBg)))
 	ui.Render(grid)
 	uiEvents := ui.PollEvents()
-	ticker := time.NewTicker(time.Millisecond).C
+	// ticker := time.NewTicker(time.Millisecond).C
 
 	for {
 		select {
@@ -106,14 +95,14 @@ func visualizer(curent *command, A, B *stack, functions map[string]func(A, B *st
 				ui.Clear()
 				ui.Render(grid)
 			}
-		case <-ticker:
-			if curent != nil {
-				functions[curent.name](A, B)
-				curent = curent.next
-				sAg.Sparklines[0].Data = *A
-				sBg.Sparklines[0].Data = *B
-				ui.Render(grid)
-			}
+			// case <-ticker:
+			// 	if curent != nil {
+			// 		functions[curent.name](A, B)
+			// 		curent = curent.next
+			// 		sAg.Sparklines[0].Data = *A
+			// 		sBg.Sparklines[0].Data = *B
+			// 		ui.Render(grid)
+			// 	}
 		}
 	}
 }
@@ -138,13 +127,12 @@ func updateIfNeg(smallest int, stackA *stack) {
 
 }
 
-func getArgNums(argv []string) stack {
+func stackFromArgNums(argv []string) stack {
 	isDup := dupChecker()
 	stackA := stack{}
 	var smallest int
 	for _, str := range argv {
 		split := strings.Split(str, " ")
-		fmt.Println(split)
 		for _, x := range split {
 			num, err := strconv.Atoi(x)
 			if num < smallest {
@@ -174,10 +162,11 @@ func main() {
 	if len(os.Args) == 1 {
 		os.Exit(2)
 	}
-	stackA := getArgNums(os.Args[1:])
+	stackA := stackFromArgNums(os.Args[1:])
 	stackB := stack{}
 	commandList := scanner(functions)
 	visualizer(commandList, &stackA, &stackB, functions)
+	fmt.Println(stackA)
 	check(&stackA, &stackB)
 }
 

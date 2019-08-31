@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type stack []float64
 
 func prepend(s stack, n float64) stack {
@@ -53,6 +55,7 @@ func (s *stack) rotateUp() {
 func (s *stack) isSorted() bool {
 	for i := (len(*s) - 1); i > 0; i-- {
 		if (*s)[i] < (*s)[i-1] {
+			fmt.Println(i, (*s)[i]) //just for check, remove later
 			return false
 		}
 	}
@@ -65,5 +68,3 @@ func (s *stack) isEmpty() bool {
 	}
 	return false
 }
-
-// Make all proto types same so i can put inside function map
