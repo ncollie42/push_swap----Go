@@ -44,6 +44,28 @@ func stackFromArgNums(argv []string) stack {
 	return stackA
 }
 
+type valueStack struct {
+	A, B *stack
+}
+type sizeStack struct {
+	A, B *stack
+}
+
+func solve(A, B *stack) {
+	switch len(*A) {
+	case 4, 5:
+		four_Five(A, B)
+	case 3:
+		three(A, B)
+	case 2:
+		two(A, B)
+	default:
+		values := valueStack{A, B}
+
+		mergeSort(values)
+	}
+}
+
 func main() {
 	// functions := map[string]func(A, B *stack){
 	// 	"sa": sa, "sb": sb, "ss": ss, "pa": pa, "pb": pb, "ra": ra, "rb": rb, "rr": rr, "rra": rra, "rrb": rrb, "rrr": rrr}
@@ -53,33 +75,26 @@ func main() {
 	}
 	stackA := stackFromArgNums(os.Args[1:])
 	stackB := stack{}
+
 	solve(&stackA, &stackB)
-	// stackA.getPivot()
-	// fmt.Println(stackA, stackB)
-	// solve(stackA, stackB)
 }
 
-//get pivot function
-//push or rotate, // double check if B can do it too // and swap as well if both works
-
-func test(A, B *stack) {
-	if len(*A) <= 5 {
-		return
+func pushAlot(A, B *stack, amount int) {
+	for amount > 0 { //Sorted then the left over? random? // argest set then random?
+		pb(A, B)
+		amount--
 	}
-	pivotA, _ := A.getPivot()
-	pivotB, errB := B.getPivot()
-	for (*A)[0] != pivotA {
-		if (*A)[0] > pivotA && errB != nil && (*B)[0] > pivotB {
-			rr(A, B)
-		} else if (*A)[0] > pivotA {
-			ra(A, B)
-		} else {
-			pb(A, B)
-		}
-	}
-	test(A, B)
 }
 
-func solve(A, B *stack) {
-	test(A, B)
+func pushAlotRev(A, B *stack, amount int) {
+	for amount > 0 { //Sorted then the left over? random? // argest set then random?
+		rra(A, B)
+		pb(A, B)
+		amount--
+	}
 }
+
+const (
+	right bool = true
+	left  bool = false
+)

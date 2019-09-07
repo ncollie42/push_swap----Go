@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 )
 
 func sa(A, B *stack) {
@@ -65,12 +64,10 @@ func rrr(A, B *stack) {
 	fmt.Println("rrr")
 }
 
-func check(A, B *stack) {
+func check(A, B *stack) bool {
 	if A.isSorted() && B.isEmpty() {
-		fmt.Println("OK")
-		os.Exit(0)
+		return true
 	} else {
-		fmt.Println("KO")
-		os.Exit(1)
+		return false
 	}
 }

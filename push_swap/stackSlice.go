@@ -71,6 +71,13 @@ func (s *stack) isEmpty() bool {
 	return false
 }
 
+// func (s *stack) Peak() bool {
+// 	if len((*s)) == 0 {
+// 		return (*s)[0]
+// 	}
+// 	return false
+// }
+
 func (s *stack) getPivot() (float64, error) {
 	var pivot float64
 	if len(*s) == 0 {
